@@ -88,6 +88,62 @@
         msg.innerHTML = "💀 Kesempatan habis! Angka: " + angkaRahasia;
       }
     }
+  </script><script>
+  let angkaRahasia = Math.floor(Math.random() * 10) + 1;
+  let percobaan = 0;
+
+  function check() {
+    let tebakan = Number(document.getElementById("guess").value);
+    let msg = document.getElementById("msg");
+    percobaan++;
+
+    if (!tebakan) {
+      msg.innerHTML = "⚠️ Masukin angka dulu!";
+      return;
+    }
+
+    if (tebakan === angkaRahasia) {
+      msg.innerHTML = "🎉 BENAR! Kamu menang!";
+
+      // ✨ EASTER EGG JELAS
+      setTimeout(() => {
+        document.body.innerHTML = `
+          <div style="
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+            flex-direction:column;
+            font-family:Arial;
+            background:#000;
+            color:#00ff88;
+          ">
+            <h1>🎊 MODE RAhasia TERBUKA 🎊</h1>
+            <p>Kamu menemukan angka tersembunyi: <b>${angkaRahasia}</b></p>
+            <p>🧠 AI Message: "Instingmu lebih tajam dari kebanyakan pemain."</p>
+            <button onclick="location.reload()" style="
+              margin-top:20px;
+              padding:10px 20px;
+              cursor:pointer;
+            ">
+              Main Lagi
+            </button>
+          </div>
+        `;
+      }, 600);
+
+    } 
+    else if (tebakan > angkaRahasia) {
+      msg.innerHTML = "📉 Kelebihan!";
+    } 
+    else {
+      msg.innerHTML = "📈 Kurang!";
+    }
+
+    if (percobaan >= 5 && tebakan !== angkaRahasia) {
+      msg.innerHTML = "💀 Game Over! Angka: " + angkaRahasia;
+    }
+  }
   </script>
 
 </body>
