@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Mystery Number Game</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      padding-top: 80px;
+    }
+
+    .box {
+      background: #1e293b;
+      padding: 20px;
+      width: 300px;
+      margin: auto;
+      border-radius: 10px;
+    }
+
+    input {
+      padding: 10px;
+      width: 80%;
+      margin-top: 10px;
+    }
+
+    button {
+      padding: 10px;
+      margin-top: 10px;
+      width: 85%;
+      cursor: pointer;
+      background: #2563eb;
+      border: none;
+      color: white;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    #msg {
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <h2>🎮 Mystery Number</h2>
+    <p>Tebak angka 1 - 10</p>
+
+    <input type="number" id="guess" placeholder="Masukkan tebakan">
+    <button onclick="check()">Tebak!</button>
+
+    <p id="msg"></p>
+  </div>
+
+  <script>
+    let angkaRahasia = Math.floor(Math.random() * 10) + 1;
+    let percobaan = 0;
+
+    function check() {
+      let tebakan = document.getElementById("guess").value;
+      let msg = document.getElementById("msg");
+
+      percobaan++;
+
+      if (tebakan == angkaRahasia) {
+        msg.innerHTML = "🎉 Benar! Kamu menang!";
+
+        // 🔥 KEJUTAN (EASTER EGG)
+        setTimeout(() => {
+          alert("👀 KEJUTAN: Kamu menemukan mode rahasia!\nAI berkata: Kamu punya insting yang bagus 😏");
+          document.body.style.background = "#4c1d95";
+          msg.innerHTML = "✨ MODE RAHASIA AKTIF ✨";
+        }, 500);
+
+      } else if (tebakan > angkaRahasia) {
+        msg.innerHTML = "📉 Terlalu besar!";
+      } else {
+        msg.innerHTML = "📈 Terlalu kecil!";
+      }
+
+      if (percobaan >= 5) {
+        msg.innerHTML = "💀 Kesempatan habis! Angka: " + angkaRahasia;
+      }
+    }
+  </script>
+
+</body>
+</html>
