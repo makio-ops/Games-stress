@@ -125,3 +125,21 @@ function draw() {
 
   if (gameOver) {
     ctx.fillStyle = "red";
+    ctx.font = "30px Arial";
+    ctx.fillText("GAME OVER", 70, 240);
+    ctx.font = "16px Arial";
+    ctx.fillText("Klik untuk restart", 85, 270);
+  }
+}
+
+function loop() {
+  if (!gameOver) update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+loop();
+</script>
+
+</body>
+</html>
