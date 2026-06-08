@@ -2,11 +2,11 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Flappy Tap Game</title>
+  <title>Flappy Fix Game</title>
   <style>
     body {
       margin: 0;
-      background: #70c5ce;
+      background: #4ec0ca;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -17,86 +17,92 @@
 
     canvas {
       background: #70c5ce;
-      border: 2px solid #000;
-    }
-
-    #info {
-      position: absolute;
-      top: 20px;
-      color: white;
-      font-size: 20px;
+      border: 3px solid #000;
     }
   </style>
 </head>
 <body>
 
-<div id="info">Klik / Tap untuk terbang 🐤</div>
 <canvas id="game" width="320" height="480"></canvas>
 
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
+// 🐤 BURUNG (dibuat lebih jelas)
 let bird = {
-  x: 50,
-  y: 150,
-  gravity: 0.6,
+  x: 60,
+  y: 200,
+  w: 25,
+  h: 25,
   velocity: 0,
-  lift: -10
+  gravity: 0.4,
+  jump: -7
 };
 
 let pipes = [];
 let score = 0;
 let gameOver = false;
 
-// tap / klik
-document.addEventListener("click", () => {
+// 🕹️ kontrol (klik / tap / spasi)
+function flap() {
   if (!gameOver) {
-    bird.velocity = bird.lift;
+    bird.velocity = bird.jump;
   } else {
     location.reload();
   }
+}
+
+document.addEventListener("click", flap);
+document.addEventListener("keydown", (e) => {
+  if (e.code === "Space") flap();
 });
 
-// buat pipa
-function createPipe() {
+// 🌿 bikin pipa
+function makePipe() {
   let gap = 120;
-  let top = Math.random() * (canvas.height - gap - 50) + 20;
+  let top = Math.random() * 200 + 50;
 
   pipes.push({
-    x: canvas.width,
+    x: 320,
     top: top,
-    bottom: top + gap
+    bottom: top + gap,
+    w: 40
   });
 }
 
-setInterval(createPipe, 1500);
+setInterval(() => {
+  if (!gameOver) makePipe();
+}, 1500);
 
+// 🔁 update game
 function update() {
+  // burung jatuh
   bird.velocity += bird.gravity;
   bird.y += bird.velocity;
 
-  // jatuh
-  if (bird.y > canvas.height || bird.y < 0) {
+  // batas layar
+  if (bird.y > 480 || bird.y < 0) {
     gameOver = true;
   }
 
-  // pipa gerak
-  for (let i = 0; i < pipes.length; i++) {
-    pipes[i].x -= 2;
+  // pipa jalan
+  for (let p of pipes) {
+    p.x -= 2;
 
     // tabrakan
     if (
-      bird.x < pipes[i].x + 40 &&
-      bird.x + 20 > pipes[i].x &&
-      (bird.y < pipes[i].top || bird.y + 20 > pipes[i].bottom)
+      bird.x < p.x + p.w &&
+      bird.x + bird.w > p.x &&
+      (bird.y < p.top || bird.y + bird.h > p.bottom)
     ) {
       gameOver = true;
     }
 
-    // skor
-    if (pipes[i].x === 50) {
+    // score
+    if (!p.passed && p.x + p.w < bird.x) {
       score++;
+      p.passed = true;
     }
   }
 
@@ -104,18 +110,19 @@ function update() {
   pipes = pipes.filter(p => p.x > -50);
 }
 
+// 🎨 gambar
 function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, 320, 480);
 
-  // bird
+  // burung 🐤
   ctx.fillStyle = "yellow";
-  ctx.fillRect(bird.x, bird.y, 20, 20);
+  ctx.fillRect(bird.x, bird.y, bird.w, bird.h);
 
-  // pipes
+  // pipa 🌿
   ctx.fillStyle = "green";
   for (let p of pipes) {
-    ctx.fillRect(p.x, 0, 40, p.top);
-    ctx.fillRect(p.x, p.bottom, 40, canvas.height);
+    ctx.fillRect(p.x, 0, p.w, p.top);
+    ctx.fillRect(p.x, p.bottom, p.w, 480);
   }
 
   // score
@@ -126,14 +133,15 @@ function draw() {
   if (gameOver) {
     ctx.fillStyle = "red";
     ctx.font = "30px Arial";
-    ctx.fillText("GAME OVER", 70, 240);
+    ctx.fillText("GAME OVER", 60, 240);
     ctx.font = "16px Arial";
-    ctx.fillText("Klik untuk restart", 85, 270);
+    ctx.fillText("Klik / Space untuk restart", 60, 270);
   }
 }
 
+// loop utama
 function loop() {
-  if (!gameOver) update();
+  update();
   draw();
   requestAnimationFrame(loop);
 }
