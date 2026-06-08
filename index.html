@@ -2,149 +2,126 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Mystery Number Game</title>
+  <title>Flappy Tap Game</title>
   <style>
     body {
+      margin: 0;
+      background: #70c5ce;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
       font-family: Arial;
-      background: #0f172a;
+    }
+
+    canvas {
+      background: #70c5ce;
+      border: 2px solid #000;
+    }
+
+    #info {
+      position: absolute;
+      top: 20px;
       color: white;
-      text-align: center;
-      padding-top: 80px;
-    }
-
-    .box {
-      background: #1e293b;
-      padding: 20px;
-      width: 300px;
-      margin: auto;
-      border-radius: 10px;
-    }
-
-    input {
-      padding: 10px;
-      width: 80%;
-      margin-top: 10px;
-    }
-
-    button {
-      padding: 10px;
-      margin-top: 10px;
-      width: 85%;
-      cursor: pointer;
-      background: #2563eb;
-      border: none;
-      color: white;
-      border-radius: 5px;
-    }
-
-    button:hover {
-      background: #1d4ed8;
-    }
-
-    #msg {
-      margin-top: 15px;
+      font-size: 20px;
     }
   </style>
 </head>
 <body>
 
-  <div class="box">
-    <h2>🎮 Mystery Number</h2>
-    <p>Tebak angka 1 - 10</p>
+<div id="info">Klik / Tap untuk terbang 🐤</div>
+<canvas id="game" width="320" height="480"></canvas>
 
-    <input type="number" id="guess" placeholder="Masukkan tebakan">
-    <button onclick="check()">Tebak!</button>
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-    <p id="msg"></p>
-  </div>
+let bird = {
+  x: 50,
+  y: 150,
+  gravity: 0.6,
+  velocity: 0,
+  lift: -10
+};
 
-  <script>
-    let angkaRahasia = Math.floor(Math.random() * 10) + 1;
-    let percobaan = 0;
+let pipes = [];
+let score = 0;
+let gameOver = false;
 
-    function check() {
-      let tebakan = document.getElementById("guess").value;
-      let msg = document.getElementById("msg");
+// tap / klik
+document.addEventListener("click", () => {
+  if (!gameOver) {
+    bird.velocity = bird.lift;
+  } else {
+    location.reload();
+  }
+});
 
-      percobaan++;
+// buat pipa
+function createPipe() {
+  let gap = 120;
+  let top = Math.random() * (canvas.height - gap - 50) + 20;
 
-      if (tebakan == angkaRahasia) {
-        msg.innerHTML = "🎉 Benar! Kamu menang!";
+  pipes.push({
+    x: canvas.width,
+    top: top,
+    bottom: top + gap
+  });
+}
 
-        // 🔥 KEJUTAN (EASTER EGG)
-        setTimeout(() => {
-          alert("👀 KEJUTAN: Kamu menemukan mode rahasia!\nAI berkata: Kamu punya insting yang bagus 😏");
-          document.body.style.background = "#4c1d95";
-          msg.innerHTML = "✨ MODE RAHASIA AKTIF ✨";
-        }, 500);
+setInterval(createPipe, 1500);
 
-      } else if (tebakan > angkaRahasia) {
-        msg.innerHTML = "📉 Terlalu besar!";
-      } else {
-        msg.innerHTML = "📈 Terlalu kecil!";
-      }
+function update() {
+  bird.velocity += bird.gravity;
+  bird.y += bird.velocity;
 
-      if (percobaan >= 5) {
-        msg.innerHTML = "💀 Kesempatan habis! Angka: " + angkaRahasia;
-      }
-    }
-  </script><script>
-  let angkaRahasia = Math.floor(Math.random() * 10) + 1;
-  let percobaan = 0;
+  // jatuh
+  if (bird.y > canvas.height || bird.y < 0) {
+    gameOver = true;
+  }
 
-  function check() {
-    let tebakan = Number(document.getElementById("guess").value);
-    let msg = document.getElementById("msg");
-    percobaan++;
+  // pipa gerak
+  for (let i = 0; i < pipes.length; i++) {
+    pipes[i].x -= 2;
 
-    if (!tebakan) {
-      msg.innerHTML = "⚠️ Masukin angka dulu!";
-      return;
-    }
-
-    if (tebakan === angkaRahasia) {
-      msg.innerHTML = "🎉 BENAR! Kamu menang!";
-
-      // ✨ EASTER EGG JELAS
-      setTimeout(() => {
-        document.body.innerHTML = `
-          <div style="
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            height:100vh;
-            flex-direction:column;
-            font-family:Arial;
-            background:#000;
-            color:#00ff88;
-          ">
-            <h1>🎊 MODE RAhasia TERBUKA 🎊</h1>
-            <p>Kamu menemukan angka tersembunyi: <b>${angkaRahasia}</b></p>
-            <p>🧠 AI Message: "Instingmu lebih tajam dari kebanyakan pemain."</p>
-            <button onclick="location.reload()" style="
-              margin-top:20px;
-              padding:10px 20px;
-              cursor:pointer;
-            ">
-              Main Lagi
-            </button>
-          </div>
-        `;
-      }, 600);
-
-    } 
-    else if (tebakan > angkaRahasia) {
-      msg.innerHTML = "📉 Kelebihan!";
-    } 
-    else {
-      msg.innerHTML = "📈 Kurang!";
+    // tabrakan
+    if (
+      bird.x < pipes[i].x + 40 &&
+      bird.x + 20 > pipes[i].x &&
+      (bird.y < pipes[i].top || bird.y + 20 > pipes[i].bottom)
+    ) {
+      gameOver = true;
     }
 
-    if (percobaan >= 5 && tebakan !== angkaRahasia) {
-      msg.innerHTML = "💀 Game Over! Angka: " + angkaRahasia;
+    // skor
+    if (pipes[i].x === 50) {
+      score++;
     }
   }
-  </script>
 
-</body>
-</html>
+  // hapus pipa lama
+  pipes = pipes.filter(p => p.x > -50);
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // bird
+  ctx.fillStyle = "yellow";
+  ctx.fillRect(bird.x, bird.y, 20, 20);
+
+  // pipes
+  ctx.fillStyle = "green";
+  for (let p of pipes) {
+    ctx.fillRect(p.x, 0, 40, p.top);
+    ctx.fillRect(p.x, p.bottom, 40, canvas.height);
+  }
+
+  // score
+  ctx.fillStyle = "white";
+  ctx.font = "20px Arial";
+  ctx.fillText("Score: " + score, 10, 25);
+
+  if (gameOver) {
+    ctx.fillStyle = "red";
